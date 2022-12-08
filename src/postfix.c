@@ -32,7 +32,7 @@ char isOperator(char op) {
 	return res;
 }
 
-void toPostFix() {
+queue* toPostFix() {
 	stack* stk = (stack*)malloc(sizeof(stack));
 	queue* post = (queue*)malloc(sizeof(queue));
 	FC* cur;
@@ -100,5 +100,5 @@ void toPostFix() {
 		queue_push(popData, post);
 	}
 
-	print_queue(post);
+	return post;
 }

@@ -1,6 +1,7 @@
 #include "postfix.h"
 
 int main(void) {
-	toPostFix();
+	queue* postfix = toPostFix();
+	print_queue(postfix);
 	return 0;
 }

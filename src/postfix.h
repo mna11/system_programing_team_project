@@ -4,4 +4,4 @@
 
 char priority(char data1, char data2);
 char isOperator(char op);
-void toPostFix();
+queue* toPostFix();
