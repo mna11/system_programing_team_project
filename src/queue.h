@@ -2,13 +2,13 @@
 #include "list.h"
 
 typedef struct Queue {
-	int cnt;
-	FC* front;
-	FC* rear;
+	int cnt; //데이터 개수 (테스트 용)
+	FC* front; //팝을 위해 앞을 기억함
+	FC* rear; //데이터가 푸시요청을하면 뒤부분에 붙여야하니 뒤를 기억함 
 }queue;
 
-int queEmpty(queue* que);
-void queue_push(FC* d, queue* que);
-FC* queue_pop(queue* que);
-void initQueue(queue* que);
-void print_queue(queue* que);
+int queEmpty(queue* que); //큐가 비어있는지 체크함
+void queue_push(FC* d, queue* que); //큐에 FC* d를 푸시함
+FC* queue_pop(queue* que); //큐의 front를(가장 앞에 있는 데이터) 팝함
+void initQueue(queue* que); //큐의 초기상태 만드는 것
+void print_queue(queue* que); //큐를 출력하는 (테스트용)
