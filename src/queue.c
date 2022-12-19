@@ -31,8 +31,16 @@ void initQueue(queue* que) {
 	que->cnt = 0; //초기 상태이므로 데이터 수는 0임
 }
 
+void digit_matching(queue* que) {
+	int que_cnt = que->cnt;
+	for (FC* p = que->front; p != NULL; p = p->next_rear) {  // 큐 순회
+		digit_matching_list(p); // 호출하여 자릿수 세팅
+	}
+}
+
+
 void print_queue(queue* que) {
-	for (queue* p = que; que->front != NULL; p->front = p->front->next_rear) { //큐의 front가 NULL이 될때까지 다 비워냄
-		print_list(p->front); //리스트를 출력함 
+	for (FC* p = que->front; p != NULL; p = p->next_rear) { // 큐 순회
+		print_list(p); //리스트를 출력함 
 	}
 }
