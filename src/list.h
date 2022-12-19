@@ -9,7 +9,10 @@ typedef struct FileContents {
 	int digit; //자릿수
 	int cnt; //총 연결된 리스트 개수
 	int dot; //점 위치 (-1일시 점은 없다는 뜻)
+
 	struct FileContents* next; // 다음 값 위치를 저장 
+	struct FileContents* prev; // 이전 값 위치를 저장
+
 	struct FileContents* next_top; // 스택을 위해 자신이 팝되었을 때, 다음 탑 위치를 기억함 (ex) 스택가 [1,2,3]일때, 2가 1의 위치를 기억하고, 3이 2의 위치를 기억하는 거임 )
 	struct FileContents* next_rear; // 큐를 위해 자신이 팝되었을 때, 다음 뒤의 위치를 기억함 (ex) 큐가 [1,2,3]일때, 1이 2의 위치를 기억하고, 2가 3의 위치를 기억하는 거임)
 }FC;

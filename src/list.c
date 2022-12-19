@@ -6,6 +6,7 @@ FC* head_insert(FC* head, char value) {
 	head->data = value;
 	head->cnt = 0;
 	head->dot = -1;
+	head->prev = NULL;
 	return head;
 }
 
@@ -13,6 +14,7 @@ FC* insertVal(FC* pre, char value) {
 	FC* p = (FC*)malloc(sizeof(FC));
 	p->data = value;
 	pre->next = p; //새로 다음 리스트 공간을 만들고 이어 붙임 
+	p->prev = pre; //이전 리스트를 기억한다.
 	return p; // 이어 붙인 리스트 공간을 반환함 
 }
 
@@ -30,7 +32,7 @@ void print_list(FC* head)
 {
 	printf("[%d %d]   ", head->cnt, head->dot);
 	for (FC* p = head; p != NULL; p = p->next)	{ //리스트 끝까지 출력함
-		printf("%c[%d] -> ", p->data, p->digit);
+		printf("%c[%d] <-> ", p->data, p->digit);
 	}
 	printf("NULL \n");
 }
