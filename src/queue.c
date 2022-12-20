@@ -1,12 +1,11 @@
 #include "queue.h"
-
 //각 함수별 용도 설명은 헤더파일에 있음
 
 int queEmpty(queue* que) {
 	return que->cnt == 0; //만약 큐에 들어있는 데이터수가 0이라면 1, 아니라면 0을 반환
 }
 
-void queue_push(FC* d, queue* que) {
+void queue_push(LINK d, queue* que) {
 	if (queEmpty(que)) {
 		que->front = d; //만약에 큐가 비어있다면 front에 저장함.
 	}
@@ -17,10 +16,10 @@ void queue_push(FC* d, queue* que) {
 	que->cnt++; //큐에 들어있는 데이터 수를 증가시킴
 }
 
-FC* queue_pop(queue* que) {
+LINK queue_pop(queue* que) {
 	if (queEmpty(que))
 		return NULL; //큐가 비어있는데 팝을 할려하므로 NULL을 리턴함
-	FC* tmp = que->front; // 현재 front 값을 저장함 
+	LINK tmp = que->front; // 현재 front 값을 저장함 
 	que->front = tmp->next_rear; // front 값 갱신  
 	que->cnt--; // 데이터 수를 감소
 	return tmp; // front 였던 것을 반환해줌 
@@ -33,14 +32,13 @@ void initQueue(queue* que) {
 
 void digit_matching(queue* que) {
 	int que_cnt = que->cnt;
-	for (FC* p = que->front; p != NULL; p = p->next_rear) {  // 큐 순회
+	for (LINK p = que->front; p != NULL; p = p->next_rear) {  // 큐 순회
 		digit_matching_list(p); // 호출하여 자릿수 세팅
 	}
 }
 
-
 void print_queue(queue* que) {
-	for (FC* p = que->front; p != NULL; p = p->next_rear) { // 큐 순회
-		print_list(p); //리스트를 출력함 
+	for (LINK p = que->front; p != NULL; p = p->next_rear) { // 큐 순회
+		print_list_test(p); //리스트를 출력함 
 	}
 }

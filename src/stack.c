@@ -1,15 +1,13 @@
 #include "stack.h"
 
-//각 함수별 용도 설명은 헤더파일에 있음
-
-void stack_push(FC* d, stack* stk) {
+void stack_push(LINK d, stack* stk) {
 	d->next_top = stk->top; //d의 next_top에 현재 스택의 top을 기억시킴, d가 나중에 팝될 경우, 다음 top 위치를 지정시키기 위해
 	stk->top = d; //스택의 탑에 d를 지정함 
 	stk->cnt++; //스택의 데이터 수를 증가시킴 
 }
 
-FC* stack_pop(stack* stk) {
-	FC* t = stk->top; //스택의 탑 값을 FC* t에 저장시킴
+LINK stack_pop(stack* stk) {
+	LINK t = stk->top; //스택의 탑 값을 FC* t에 저장시킴
 	stk->top = stk->top->next_top; //현재 탑 전의 탑으로 바꿈 (스택을 쌓는다 생각했을 때, 위에서 두번째 데이터로 탑을 바꾼다는 말임)
 	stk->cnt--; //스택의 데이터 수를 감소시킴
 	return t; //팝한 탑 값을 반환함 
