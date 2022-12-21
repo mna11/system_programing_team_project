@@ -106,10 +106,8 @@ queue* toPostFix() {
 				exit(1);
 			}
 			char tmp = fgetc(input_reading);
-			int cnt = 1;
 			while (isspace(tmp)) {
 				tmp = fgetc(input_reading); //공백이 한두칸이 아닐 수도 있으니 공백이 끝날때까지 받아봄.
-				cnt++;
 			} 
 			if (tmp != '(' && isOperator(tmp)) { // * ( 와 같이 연산자 다음 (가 오는 경우는 정상적이므로 제외함
 				printf("\n[Invalid expression] Invalid sign expression.\n");
@@ -117,16 +115,14 @@ queue* toPostFix() {
 				printf("Program exit\n");
 				exit(1);
 			}
-			fseek(input_reading, -cnt, SEEK_CUR); //파일 위치를 다시 돌려놓음.
+			fseek(input_reading, -1, SEEK_CUR); //파일 위치를 다시 돌려놓음.
 			fputc(word, writer_checking);
 			pre = word;
 		}
 		else if (isspace(word)) {
 			char tmp = fgetc(input_reading);
-			int cnt = 1;
 			while (isspace(tmp)) {
 				tmp = fgetc(input_reading); //공백이 한두칸이 아닐 수도 있으니 공백이 끝날때까지 받아봄.
-				cnt++;
 			}
 			if (!space_between_num && isdigit(pre) && isdigit(tmp)) { //예를 들어 123 456이 입력이 되면 에러메세지를 띄우고 123456으로 계산할 수 있도록 공백을 날림.
 				space_between_num = 1;
@@ -134,7 +130,7 @@ queue* toPostFix() {
 			else {
 				fputc(word, writer_checking);
 			}
-			fseek(input_reading, -cnt, SEEK_CUR); //파일 위치를 다시 돌려놓음.
+			fseek(input_reading, -1, SEEK_CUR); //파일 위치를 다시 돌려놓음.
 			pre = word;
 		}
 	}
