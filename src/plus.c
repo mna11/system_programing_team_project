@@ -13,14 +13,6 @@ LINK plus(LINK a, LINK b) {
 
     big_num = compare(a, b);
 
-    if (big_num == 3) { // 둘의 절대값이 같을 때
-        ans = char_to_list('+');
-        insert(ans, '.');
-        insert(ans, '0');
-        free_all(a); free_all(b);
-        return ans;
-    }
-
     if (big_num == 2) { // b가 더 크면 b가 a로 이동
         num_copy = a;
         a = b;

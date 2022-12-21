@@ -55,12 +55,11 @@ queue* toPostFix() {
 	initStack(stk); //초기설정
 	initQueue(post); //초기설정
 
-	while (scanf("%c", &word) == 1) {
+	while (scanf("%c", &word) == 1) { // 입력받아서 새로운 파일로 저장하는 과정, 괄호 체크랑 수식 체크를 진행함.
 		putchar(word);
-		if (word == '(') parenthesis_check++;
+		if (word == '(') parenthesis_check++; 
 		else if (word == ')') parenthesis_check--;
 		else if (!isdigit(word) && !isOperator(word) && !isspace(word) && word != '\n' && word != '.') is_not_math_expression = 1;
-
 		fputc(word, input);
 	}
 	fclose(input);
@@ -68,7 +67,8 @@ queue* toPostFix() {
 	input_reading = fopen("input", "r");
 	writer_checking = fopen("real_input", "w");
 
-	if (parenthesis_check) {
+
+	if (parenthesis_check) { // 각각의 상황에 맞게 에러메세지를 출력함.
 		printf("\n[Invalid expression] The parentheses do not match.\n");
 		printf("                     (Errors can occur during the process.)\n\n");
 	}
@@ -77,7 +77,7 @@ queue* toPostFix() {
 		printf("                     (Errors can occur during the process.)\n\n");
 	}
 
-	while (1) {
+	while (1) { //수가 알맞지 않은 여는 괄호 제거, 수식 표현 이외의 다른 문자 제거, 수 사이의 공백이 있는지 체크를 진행함. 
 		word = fgetc(input_reading);
 		int check = parenthesis_check;
 
@@ -94,29 +94,58 @@ queue* toPostFix() {
 			fputc(word, writer_checking);
 			pre = word;
 		}
-		else if (isdigit(word) || isOperator(word) || word == '\n' || word == '.') {
+		else if (isdigit(word) || word == '\n' || word == '.' || word == ')') {
+			fputc(word, writer_checking);
+			pre = word;
+		}
+		else if (isOperator(word)) { // 닫는 괄호를 제외한 연산자일 경우.
+			if (word == '/') {
+				printf("\n[Invalid expression] This calculator does not support division.\n");
+				printf("                     (Please correct the expression and try again.)\n\n");
+				printf("Program exit\n");
+				exit(1);
+			}
+			char tmp = fgetc(input_reading);
+			int cnt = 1;
+			while (isspace(tmp)) {
+				tmp = fgetc(input_reading); //공백이 한두칸이 아닐 수도 있으니 공백이 끝날때까지 받아봄.
+				cnt++;
+			} 
+			if (tmp != '(' && isOperator(tmp)) { // * ( 와 같이 연산자 다음 (가 오는 경우는 정상적이므로 제외함
+				printf("\n[Invalid expression] Invalid sign expression.\n");
+				printf("                     (Please correct the expression and try again.)\n\n");
+				printf("Program exit\n");
+				exit(1);
+			}
+			fseek(input_reading, -cnt, SEEK_CUR); //파일 위치를 다시 돌려놓음.
 			fputc(word, writer_checking);
 			pre = word;
 		}
 		else if (isspace(word)) {
 			char tmp = fgetc(input_reading);
-			if (!space_between_num && isdigit(pre) && isdigit(tmp)) {
+			int cnt = 1;
+			while (isspace(tmp)) {
+				tmp = fgetc(input_reading); //공백이 한두칸이 아닐 수도 있으니 공백이 끝날때까지 받아봄.
+				cnt++;
+			}
+			if (!space_between_num && isdigit(pre) && isdigit(tmp)) { //예를 들어 123 456이 입력이 되면 에러메세지를 띄우고 123456으로 계산할 수 있도록 공백을 날림.
 				space_between_num = 1;
 			}
 			else {
 				fputc(word, writer_checking);
 			}
-			fseek(input_reading, -1, SEEK_CUR);
+			fseek(input_reading, -cnt, SEEK_CUR); //파일 위치를 다시 돌려놓음.
 			pre = word;
 		}
 	}
 
-	if (space_between_num) { //[예외처리] 예를 들어 123 456이 입력이 되면 에러메세지를 띄우고 123456으로 계산함
+	if (space_between_num) { // 상황에 맞는 에러메세지 출력함.
 		printf("\n[Invalid expression] There is a space between the number and the number.\n");
 		printf("                     (Errors can occur during the process.)\n\n");
 	}
 
 	pre = '\0';
+	parenthesis_check = 0;
 	input_reading = fopen("real_input", "r");
 
 	while (1) { //데이터를 읽어와서 word에 저장함 
@@ -125,21 +154,19 @@ queue* toPostFix() {
 			fclose(input_reading);
 			break;
 		}
-		if (word == '\n' || isspace(word)) continue; //공백과 줄넘김은 무시함
+		if (word == '\n' || isspace(word)) continue; //공백과 줄넘김은 무시함.
 
-		if (isdigit(pre) && isdigit(word) || pre == '.') {
+		if (isdigit(pre) && isdigit(word) || pre == '.') { //이전 데이터가 숫자였고 이번 데이터도 숫자라면 연결리스트에 이어서 저장시킴 || 소수도 저장해야하므로 .도 이어서 저장
 			if (pre == '.' && word == '.') continue;
-
-			//이전 데이터가 숫자였고 이번 데이터도 숫자라면 연결리스트에 이어서 저장시킴 || 소수도 이어서 저장해야하므로 .도 체크해줌
 			header->cnt++;
 			cur = insert(cur, word);
 		}
 		else if (word == '.') {
-			if (header->dot != -1) { //[예외처리] 점이 두번 이상 들어온 경우, 이후 들어온 점들은 없앰
-				if (demical_point_check) { //[예외처리] 에러메세지를 띄워줌
+			if (header->dot != -1) { // 한 수에 점이 두번 이상 들어온 경우, 두번째 점부터는 날림.
+				if (demical_point_check) { // 상황에 맞는 에러메세지 출력함.
 					printf("\n[Invalid expression] A number has more than one decimal point.\n");
 					printf("                     (Errors can occur during the process.)\n\n");
-					demical_point_check = 0;
+					demical_point_check = 0; // 한번만 띄워주기 위해 바꿈.
 				}
 				pre = word;
 				continue;
@@ -153,14 +180,14 @@ queue* toPostFix() {
 			if (isOperator(word)) { // 만약 연산자라면 
 				if (word == ')') { // 닫는 괄호가 입력될 경우
 
-					if (!parenthesis_check) parenthesis_check = 0; // [예외처리] 매칭되는 여는 괄호가 없는 경우, continue 시킴 
+					if (parenthesis_check) parenthesis_check = 0; // 만약 여는 괄호 전에 먼저 닫는 괄호가 온다면 날려줌. (여기서 parenthesis_check는 여는 괄호가 전에 나왔다면 1)
 					else {
 						pre = word;
 						continue;
 					}
 
-					while (1) {
-						popData = stack_pop(stk); //여는 괄호가 나올때까지 팝시킴
+					while (1) { //여는 괄호가 나올때까지 팝시킴
+						popData = stack_pop(stk); 
 						if (popData->d == '(') {
 							break;
 						}
@@ -171,7 +198,7 @@ queue* toPostFix() {
 				}
 				else if (word == '(') { //여는 괄호가 입력될 경우
 					parenthesis_check = 1;
-					if (isdigit(pre)) { // [예외처리] 만약 10(10...) 이렇게 들어온 경우 10 * (10 ...)으로 판단함 
+					if (isdigit(pre)) { // 만약 10(10...) 이렇게 들어온 경우 10 * (10 ...)으로 판단함 
 						word = '*';
 						while (1) {
 							if (stk->top == NULL) { // 스택이 비어있을 경우, 그냥 넣어줌
@@ -189,8 +216,6 @@ queue* toPostFix() {
 								}
 								else {
 									queue_push(popData, post); //아닌 경우는 큐에 top 부분을 넣어줌 
-									//[-, +]인 경우 -를 그냥 넣어준다. 
-									//while문 이므로 이후 [+]라면 +도 넣어줌 
 								}
 							}
 						}
@@ -216,8 +241,6 @@ queue* toPostFix() {
 							}
 							else {
 								queue_push(popData, post); //아닌 경우는 큐에 top 부분을 넣어줌 
-								//[-, +]인 경우 -를 그냥 넣어준다. 
-								//while문 이므로 [+]라면 +도 넣어줌 
 							}
 						}
 					}
@@ -236,6 +259,7 @@ queue* toPostFix() {
 
 	while (stk->top != NULL) { //스택을 비워준다.
 		popData = stack_pop(stk);
+		if (popData->d == '(') continue; // ) ( 이런 경우를 대비해서 날려줌.
 		queue_push(popData, post);
 	}
 

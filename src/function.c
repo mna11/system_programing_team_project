@@ -47,7 +47,13 @@ void print_list_test(LINK head) // 테스트 출력용
 
 void print_list(LINK head) { // 연결리스트 출력
     if (head == NULL);
-    else { printf("%c", head->d); print_list(head->next); }
+    else { 
+        if (head->d == '.' && head->next == NULL) print_list(head->next);
+        else {
+            printf("%c", head->d);
+            print_list(head->next);
+        }
+    }
 }
 
 void erase(LINK head) { // 소수점 아래 자릿수 맞추기
