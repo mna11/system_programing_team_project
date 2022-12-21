@@ -35,16 +35,37 @@ DATA isOperator(DATA op) {
 }
 
 queue* toPostFix() {
+	FILE* fp = fopen("a.txt", "w");
+	FILE* fp_r;
 	stack* stk = (stack*)malloc(sizeof(stack)); //데이터를 읽고 일단 저장할 공간 
 	queue* post = (queue*)malloc(sizeof(queue)); //postfix 순서대로 값을 저장할 공간 
 	LINK header; // 헤더 부분임
 	LINK cur;
+	int parenthesis_check = 0;
 	LINK popData; //스택의 탑을 팝한걸 저장할 공간
 	DATA word, pre = '\0'; //word는 새로운 데이터, pre는 바로 이전 데이터
 	initStack(stk); //초기설정
 	initQueue(post); //초기설정
 
-	while (scanf("%c", &word) == 1) { //데이터를 읽어와서 word에 저장함 
+	while (scanf("%c", &word) == 1) {
+		if (word == '(') parenthesis_check++;
+		else if (word == ')') parenthesis_check--;
+		fputc(word, fp);
+	}
+	fclose(fp);
+	fp_r = fopen("a.txt", "r");
+
+	/*
+	while (1) {
+		word 
+	}*/
+
+	while (1) { //데이터를 읽어와서 word에 저장함 
+		word = fgetc(fp_r);
+		if (feof(fp_r) != 0) {
+			fclose(fp_r);
+			break;
+		}
 		if (word == '\n' || isspace(word)) continue; //[예외처리] 공백과 줄넘김은 무시함 -> 123 456 이런 입력이 들어왔을시 123456의 수로 받아들이게 됨.
 		if (isdigit(pre) && isdigit(word) || pre == '.') {
 			if (pre == '.' && word == '.') continue;
@@ -65,6 +86,13 @@ queue* toPostFix() {
 		else {
 			if (isOperator(word)) { // 만약 연산자라면 
 				if (word == ')') { // 닫는 괄호가 입력될 경우
+
+					if (parenthesis_check) parenthesis_check = 0; // [예외처리] 매칭되는 여는 괄호가 없는 경우, continue 시킴 
+					else {
+						pre = word;
+						continue;
+					}
+
 					while (1) {
 						popData = stack_pop(stk); //여는 괄호가 나올때까지 팝시킴
 						if (popData->d == '(') {
@@ -76,6 +104,7 @@ queue* toPostFix() {
 					}
 				}
 				else if (word == '(') { //여는 괄호가 입력될 경우
+					parenthesis_check = 1;
 					if (isdigit(pre)) { // [예외처리] 만약 10(10...) 이렇게 들어온 경우 10 * (10 ...)으로 판단함 
 						word = '*';
 						while (1) {
@@ -95,7 +124,7 @@ queue* toPostFix() {
 								else {
 									queue_push(popData, post); //아닌 경우는 큐에 top 부분을 넣어줌 
 									//[-, +]인 경우 -를 그냥 넣어준다. 
-									//while문 이므로 [+]라면 +도 넣어줌 
+									//while문 이므로 이후 [+]라면 +도 넣어줌 
 								}
 							}
 						}
@@ -141,6 +170,7 @@ queue* toPostFix() {
 
 	while (stk->top != NULL) { //스택을 비워준다.
 		popData = stack_pop(stk);
+		if (popData->d == '(') continue; // [예외처리] 만약 여는괄호가 스택에 남은 경우 -> 매칭되는 닫는 괄호가 안들어왔다는 뜻이므로 큐에 안넣어줌
 		queue_push(popData, post);
 	}
 

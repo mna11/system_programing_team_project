@@ -1,15 +1,17 @@
 #include "postfix.h"
 #include "multiply.h"
 #include "minus.h"
+#include "plus.h"
+#include "division.h"
 
 LINK evaluate(queue* postfix);
 
 int main(void) {
 	queue* postfix = toPostFix(); //큐형태의 postfix가 만들어짐
 	digit_matching(postfix); //자릿수 세팅함
+	print_queue(postfix); //테스트용
 	LINK result = evaluate(postfix);
 	print_list_test(result);
-	//print_queue(postfix); //테스트용
 	return 0;
 }
 
@@ -28,7 +30,7 @@ LINK evaluate(queue* postfix) {
 			d1 = stack_pop(stk);
 			if (p->d == '+') {
 				if (d1->d == '+' && d2->d == '+') {
-					//res = 더하기(d1, d2);
+					res = plus(d1, d2);
 				}
 				else if (d1->d == '+' && d2->d == '-') {
 					d2->d = '+';
@@ -39,21 +41,20 @@ LINK evaluate(queue* postfix) {
 					res = minus(d2, d1);
 				}
 				else { // d1->d == '-' && d2->d == '-'
-					//res = 더하기(d1, d2);
+					res = plus(d1, d2);
 				}
 			}
 			else if (p->d == '-') {
 				if (d1->d == '+' && d2->d == '+') {
 					res = minus(d1, d2);
-					//print_list_test(res);
 				}
 				else if (d1->d == '+' && d2->d == '-') {
 					d2->d = '+';
-					//res = 더하기(d1, d2);
+					res = plus(d1, d2);
 				}
 				else if (d1->d == '-' && d2->d == '+') {
 					d2->d == '-';
-					//res = 더하기(d2, d1);
+					res = plus(d2, d1);
 				}
 				else { //d1->d == '-' && d2->d == '-'
 					d2->d = '+';
@@ -65,7 +66,7 @@ LINK evaluate(queue* postfix) {
 				res = multiply(d1, d2);
 			}
 			else if (p->d == '/') {
-				//res = 나누기(d1, d2);
+				//res = division(d1, d2);
 			}
 			stack_push(res, stk);
 		}

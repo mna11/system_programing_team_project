@@ -1,22 +1,18 @@
-#include "minus.h"
+#include "plus.h"
 
-LINK minus(LINK a, LINK b) {
-
-    /////////////////////////////////////////////////////////////
-    //선언부
+LINK plus(LINK a, LINK b) {
     LINK ans;
     LINK num_copy;
     LINK num1;
     LINK num2;
-    char buho = 1; //부호 (+,- : 1,0)
+    char buho; //부호 (+,- : 1,0)
     char big_num; //비교값 (1,2,3)
     unsigned long long int point_count = 0; //점의 위치(0~)
     char now = 0; // 계산파트에서의 현재값
     char down = 0; // 계산파트에서의 내림값
 
-    /////////////////////////////////////////////////////////////
-    //절대값이 큰 수가 a로 가도록 및 혹시 답이 0이니?
     big_num = compare(a, b);
+
     if (big_num == 3) { // 둘의 절대값이 같을 때
         ans = char_to_list('+');
         insert(ans, '.');
@@ -29,35 +25,22 @@ LINK minus(LINK a, LINK b) {
         num_copy = a;
         a = b;
         b = num_copy;
-
-        buho = 0;
     }
-    /////////////////////////////////////////////////////////////
-    //부호는 a의 부호를 따라가도록
-    //buho = a->d == '+' ? 1 : 0;  // +면 1, -면 0
 
-    /////////////////////////////////////////////////////////////
-    //숫자 부호 없애고 절대값으로
+    buho = a->d == '+' ? 1 : 0;  // +면 1, -면 0
+
     num1 = a->next; num1->prev = NULL; free(a);
     num2 = b->next; num2->prev = NULL; free(b);
 
-    /////////////////////////////////////////////////////////////
-    //소수점 위 맞추기
     num2 = small_fill(num1, num2);
 
-    ////////////////////////////////////////////////////////////
-    //소수점 아래 맞추기
     downzero(num1, num2);
 
-    ////////////////////////////////////////////////////////////
-    //소수점 자릿수 세기 및 제거
     a = last_link(num1);
     b = num2;
     for (; a->d != '.'; a = a->prev) point_count++; del_link(a);
     for (; b->d != '.'; b = b->next); del_link(b);
 
-    ///////////////////////////////////////////////////////////
-    //계산
     a = last_link(num1);
     b = last_link(num2);
 
@@ -66,7 +49,7 @@ LINK minus(LINK a, LINK b) {
         char number2 = b->d - '0';
         char check = 0;
         if (number2 - down > number1) { number1 += 10; check = 1; };
-        now = number1 - number2 + down;
+        now = number1 + number2 + down;
         down = check ? -1 : 0;
         a->d = now + '0';
         a = a->prev;
@@ -75,29 +58,22 @@ LINK minus(LINK a, LINK b) {
 
     ans = copy_link(num1);
     free_all(num1); free_all(num2);
-    ////////////////////////////////////////////////////////////
-    //점 붙이기
+
     a = last_link(ans);
     for (int _ = point_count; _ > 0; _--) a = a->prev; //[손댄부분] point_count를 기억하기 위해서
     insert(a, '.');
 
-    ////////////////////////////////////////////////////////////
-    //뒤 0 없애기
-    ans->dot = point_count; //[손댄부분] 소수점 자리 세팅을 위해 추가함
-    erase(ans); //[손댄부분] erase() 내부에서 반복문 한번 돌때마다 ans->dot--
-    point_count = ans->dot; //[손댄부분]
+    ans->dot = point_count;
+    erase(ans);
+    point_count = ans->dot;
 
-    ///////////////////////////////////////////////////////////
-    //부호 붙이기
     a = ans;
     ans = char_to_list(buho ? '+' : '-');
     connect(ans, a);
 
-    //앞 0 없애기
     a = ans->next;
     for (; a->next->d != '.' && a->d == '0'; a = a->next) del_link(ans->next);
 
-    //[손댄부분] 헤드파트 설정 
     ans->cnt = count(ans);
     ans->dot = ans->cnt - point_count;
     digit_matching_list(ans);

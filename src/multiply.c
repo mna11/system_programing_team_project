@@ -90,6 +90,7 @@ LINK multiply(LINK num1, LINK num2) {
         //덧셈
         //수는 리버스 되어있음
         //1321 + 432 = 5641
+
         if (!zero) ans = copy_link(input);
 
         else {
