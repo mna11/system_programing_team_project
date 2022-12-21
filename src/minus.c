@@ -22,6 +22,7 @@ LINK minus(LINK a, LINK b) {
         insert(ans, '.');
         insert(ans, '0');
         free_all(a); free_all(b);
+        ans->cnt = count(ans);
         return ans;
     }
 
