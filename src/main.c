@@ -34,7 +34,7 @@ LINK evaluate(queue* postfix) {
 			d2 = stack_pop(stk); // 스택의 위에서 두 수를 가져옴
 			d1 = stack_pop(stk);
 
-			//연산자와 수의 부호를 비교해서 알맞은 사칙연산을 진행함
+			//연산자와 수의 부호를 비교해서 알맞은 계산 함수를 호출함
 			if (p->d == '+') {
 				if (d1->d == '+' && d2->d == '+') {
 					res = plus(d1, d2);
@@ -44,7 +44,7 @@ LINK evaluate(queue* postfix) {
 					res = minus(d1, d2);
 				}
 				else if (d1->d == '-' && d2->d == '+') {
-					d1->d == '+';
+					d1->d = '+';
 					res = minus(d2, d1);
 				}
 				else { // d1->d == '-' && d2->d == '-'
@@ -60,8 +60,8 @@ LINK evaluate(queue* postfix) {
 					res = plus(d1, d2);
 				}
 				else if (d1->d == '-' && d2->d == '+') {
-					d2->d == '-';
-					res = plus(d2, d1);
+					d2->d = '-';
+					res = plus(d1, d2);
 				}
 				else { //d1->d == '-' && d2->d == '-'
 					d2->d = '+';
