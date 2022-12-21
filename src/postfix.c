@@ -1,5 +1,5 @@
 #include "postfix.h"
-#include <assert.h>
+
 DATA priority(DATA data1, DATA data2) {
 	DATA tmp1, tmp2;
 	if ((data1 == '+') || (data1 == '-') || (data1 == '('))
@@ -35,46 +35,112 @@ DATA isOperator(DATA op) {
 }
 
 queue* toPostFix() {
-	FILE* fp = fopen("a.txt", "w");
-	FILE* fp_r;
-	stack* stk = (stack*)malloc(sizeof(stack)); //데이터를 읽고 일단 저장할 공간 
+	FILE* input = fopen("input", "w"); //입력을 받고 파일로 저장하는 담당
+	FILE* input_reading; //input 파일을 읽어오는 담당
+	FILE* writer_checking; //input 파일을 읽으면서 일부 수정하는 담당
+
+	stack* stk = (stack*)malloc(sizeof(stack)); //postfix 변환을 위해 연산자를 잠시 저장하는 공간
 	queue* post = (queue*)malloc(sizeof(queue)); //postfix 순서대로 값을 저장할 공간 
-	LINK header; // 헤더 부분임
-	LINK cur;
-	int parenthesis_check = 0;
+	LINK header; // 연결 리스트의 헤더 부분임
+	LINK cur; // 현재 연결 리스트 위치 
+
+	int parenthesis_check = 0; // 괄호 개수 체크, 0이면 짝이 맞음
+	int is_not_math_expression = 0; // 1이면 숫자, 연산자 외의 입력이 들어왔다. 0이면 안들어왔다.
+	int demical_point_check = 1; // 소수점 체크 (만약 2번 들어왔을 때, 1이라면 오류메세지를 띄워줌)
+	int space_between_num = 0; // 1이면 숫자 사이에 빈 공간이 있다. 0이면 없다. ex) 123 456
+
 	LINK popData; //스택의 탑을 팝한걸 저장할 공간
 	DATA word, pre = '\0'; //word는 새로운 데이터, pre는 바로 이전 데이터
+
 	initStack(stk); //초기설정
 	initQueue(post); //초기설정
 
 	while (scanf("%c", &word) == 1) {
+		putchar(word);
 		if (word == '(') parenthesis_check++;
 		else if (word == ')') parenthesis_check--;
-		fputc(word, fp);
+		else if (!isdigit(word) && !isOperator(word) && !isspace(word) && word != '\n' && word != '.') is_not_math_expression = 1;
+
+		fputc(word, input);
 	}
-	fclose(fp);
-	fp_r = fopen("a.txt", "r");
+	fclose(input);
 
-	/*
+	input_reading = fopen("input", "r");
+	writer_checking = fopen("real_input", "w");
+
+	if (parenthesis_check) {
+		printf("\n[Invalid expression] The parentheses do not match.\n");
+		printf("                     (Errors can occur during the process.)\n\n");
+	}
+	if (is_not_math_expression) {
+		printf("\n[Invalid expression] Invalid value entered.\n");
+		printf("                     (Errors can occur during the process.)\n\n");
+	}
+
 	while (1) {
-		word 
-	}*/
+		word = fgetc(input_reading);
+		int check = parenthesis_check;
 
-	while (1) { //데이터를 읽어와서 word에 저장함 
-		word = fgetc(fp_r);
-		if (feof(fp_r) != 0) {
-			fclose(fp_r);
+		if (feof(input_reading) != 0) {
+			fclose(input_reading);
+			fclose(writer_checking);
 			break;
 		}
-		if (word == '\n' || isspace(word)) continue; //[예외처리] 공백과 줄넘김은 무시함 -> 123 456 이런 입력이 들어왔을시 123456의 수로 받아들이게 됨.
+		if (word == '(') {
+			if (check > 0) {
+				check--;
+				continue;
+			}
+			fputc(word, writer_checking);
+			pre = word;
+		}
+		else if (isdigit(word) || isOperator(word) || word == '\n' || word == '.') {
+			fputc(word, writer_checking);
+			pre = word;
+		}
+		else if (isspace(word)) {
+			char tmp = fgetc(input_reading);
+			if (!space_between_num && isdigit(pre) && isdigit(tmp)) {
+				space_between_num = 1;
+			}
+			else {
+				fputc(word, writer_checking);
+			}
+			fseek(input_reading, -1, SEEK_CUR);
+			pre = word;
+		}
+	}
+
+	if (space_between_num) { //[예외처리] 예를 들어 123 456이 입력이 되면 에러메세지를 띄우고 123456으로 계산함
+		printf("\n[Invalid expression] There is a space between the number and the number.\n");
+		printf("                     (Errors can occur during the process.)\n\n");
+	}
+
+	pre = '\0';
+	input_reading = fopen("real_input", "r");
+
+	while (1) { //데이터를 읽어와서 word에 저장함 
+		word = fgetc(input_reading);
+		if (feof(input_reading) != 0) {
+			fclose(input_reading);
+			break;
+		}
+		if (word == '\n' || isspace(word)) continue; //공백과 줄넘김은 무시함
+
 		if (isdigit(pre) && isdigit(word) || pre == '.') {
 			if (pre == '.' && word == '.') continue;
+
 			//이전 데이터가 숫자였고 이번 데이터도 숫자라면 연결리스트에 이어서 저장시킴 || 소수도 이어서 저장해야하므로 .도 체크해줌
 			header->cnt++;
 			cur = insert(cur, word);
 		}
 		else if (word == '.') {
 			if (header->dot != -1) { //[예외처리] 점이 두번 이상 들어온 경우, 이후 들어온 점들은 없앰
+				if (demical_point_check) { //[예외처리] 에러메세지를 띄워줌
+					printf("\n[Invalid expression] A number has more than one decimal point.\n");
+					printf("                     (Errors can occur during the process.)\n\n");
+					demical_point_check = 0;
+				}
 				pre = word;
 				continue;
 			}
@@ -87,7 +153,7 @@ queue* toPostFix() {
 			if (isOperator(word)) { // 만약 연산자라면 
 				if (word == ')') { // 닫는 괄호가 입력될 경우
 
-					if (parenthesis_check) parenthesis_check = 0; // [예외처리] 매칭되는 여는 괄호가 없는 경우, continue 시킴 
+					if (!parenthesis_check) parenthesis_check = 0; // [예외처리] 매칭되는 여는 괄호가 없는 경우, continue 시킴 
 					else {
 						pre = word;
 						continue;
@@ -170,7 +236,6 @@ queue* toPostFix() {
 
 	while (stk->top != NULL) { //스택을 비워준다.
 		popData = stack_pop(stk);
-		if (popData->d == '(') continue; // [예외처리] 만약 여는괄호가 스택에 남은 경우 -> 매칭되는 닫는 괄호가 안들어왔다는 뜻이므로 큐에 안넣어줌
 		queue_push(popData, post);
 	}
 

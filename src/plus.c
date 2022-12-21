@@ -9,7 +9,7 @@ LINK plus(LINK a, LINK b) {
     char big_num; //비교값 (1,2,3)
     unsigned long long int point_count = 0; //점의 위치(0~)
     char now = 0; // 계산파트에서의 현재값
-    char down = 0; // 계산파트에서의 내림값
+    char up = 0; // 계산파트에서의 올림값
 
     big_num = compare(a, b);
 
@@ -44,19 +44,26 @@ LINK plus(LINK a, LINK b) {
     a = last_link(num1);
     b = last_link(num2);
 
-    while (a != NULL) {
+    while (b != NULL) {
         char number1 = a->d - '0';
         char number2 = b->d - '0';
         char check = 0;
-        if (number2 - down > number1) { number1 += 10; check = 1; };
-        now = number1 + number2 + down;
-        down = check ? -1 : 0;
+        if (number1 + number2 + up >= 10) { check = 1; };
+        now = number1 + number2 + up;
+        now = check ? now % 10 : now;
+        up = check ? 1 : 0;
         a->d = now + '0';
-        a = a->prev;
+        a = a->prev != NULL ? a->prev : a;
         b = b->prev;
+    }
+    if (up) {
+        b = char_to_list('1');
+        connect(b, a);
+        num1 = b;
     }
 
     ans = copy_link(num1);
+
     free_all(num1); free_all(num2);
 
     a = last_link(ans);

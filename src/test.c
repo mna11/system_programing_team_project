@@ -2,16 +2,20 @@
 #include "multiply.h"
 #include "minus.h"
 #include "plus.h"
-#include "division.h"
 
 LINK evaluate(queue* postfix);
 
 int main(void) {
+	printf("======= Welcome to inifite calulator made by TEAM 7! ======= \n");
+	printf("Enter the expression in infix notation.\n");
+	printf("Input  : ");
 	queue* postfix = toPostFix(); //큐형태의 postfix가 만들어짐
 	digit_matching(postfix); //자릿수 세팅함
-	print_queue(postfix); //테스트용
+	//print_queue(postfix); //테스트용
 	LINK result = evaluate(postfix);
-	print_list_test(result);
+	printf("Result : ");
+	print_list(result);
+	putchar('\n');
 	return 0;
 }
 
@@ -64,9 +68,6 @@ LINK evaluate(queue* postfix) {
 			}
 			else if (p->d == '*') {
 				res = multiply(d1, d2);
-			}
-			else if (p->d == '/') {
-				//res = division(d1, d2);
 			}
 			stack_push(res, stk);
 		}
