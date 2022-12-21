@@ -6,7 +6,7 @@
 LINK evaluate(queue* postfix);
 
 int main(void) {
-	printf("[ ======= Welcome to inifite calulator made by TEAM 7! ======= ] \n");
+	printf("[ ======= Welcome to infinite calulator made by TEAM 7! ======= ] \n");
 	printf("Enter the expression in infix notation.\n");
 	printf("Input  : ");
 	queue* postfix = toPostFix(); //큐형태의 postfix가 만들어짐
