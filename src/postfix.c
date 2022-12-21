@@ -1,5 +1,5 @@
 #include "postfix.h"
-
+#include <assert.h>
 DATA priority(DATA data1, DATA data2) {
 	DATA tmp1, tmp2;
 	if ((data1 == '+') || (data1 == '-') || (data1 == '('))
@@ -45,15 +45,22 @@ queue* toPostFix() {
 	initQueue(post); //초기설정
 
 	while (scanf("%c", &word) == 1) { //데이터를 읽어와서 word에 저장함 
-		if (word == '\n' || isspace(word)) continue; //줄넘김은 패스시킴
-		if ((pre != '\0' && isdigit(pre) > 0) && isdigit(word) > 0 || pre == '.') {
+		if (word == '\n' || isspace(word)) continue; //[예외처리] 공백과 줄넘김은 무시함 -> 123 456 이런 입력이 들어왔을시 123456의 수로 받아들이게 됨.
+		if (isdigit(pre) && isdigit(word) || pre == '.') {
+			if (pre == '.' && word == '.') continue;
 			//이전 데이터가 숫자였고 이번 데이터도 숫자라면 연결리스트에 이어서 저장시킴 || 소수도 이어서 저장해야하므로 .도 체크해줌
 			header->cnt++;
 			cur = insert(cur, word);
 		}
 		else if (word == '.') {
-			header->dot = header->cnt;
-			cur = last_link(header);
+			if (header->dot != -1) { //[예외처리] 점이 두번 이상 들어온 경우, 이후 들어온 점들은 없앰
+				pre = word;
+				continue;
+			}
+			else {
+				header->dot = header->cnt + 1;
+				cur = last_link(header);
+			}
 		}
 		else {
 			if (isOperator(word)) { // 만약 연산자라면 
@@ -69,6 +76,31 @@ queue* toPostFix() {
 					}
 				}
 				else if (word == '(') { //여는 괄호가 입력될 경우
+					if (isdigit(pre)) { // [예외처리] 만약 10(10...) 이렇게 들어온 경우 10 * (10 ...)으로 판단함 
+						word = '*';
+						while (1) {
+							if (stk->top == NULL) { // 스택이 비어있을 경우, 그냥 넣어줌
+								header = char_to_list(word);
+								stack_push(header, stk);
+								break;
+							}
+							else { // 비어있지 않은 경우, top부분하고 우선순위 비교를 해야함
+								popData = stack_pop(stk);
+								if (priority(popData->d, word) == 1 || popData->d == '(') { //만약 word의 우선순위가 더 크거나, top부분이 (인 경우
+									stack_push(popData, stk);
+									header = char_to_list(word);
+									stack_push(header, stk); // 둘다 스택에 다시 넣어주고 break
+									break;
+								}
+								else {
+									queue_push(popData, post); //아닌 경우는 큐에 top 부분을 넣어줌 
+									//[-, +]인 경우 -를 그냥 넣어준다. 
+									//while문 이므로 [+]라면 +도 넣어줌 
+								}
+							}
+						}
+					}
+					word = '(';
 					header = char_to_list(word); //새로 넣어주고
 					stack_push(header, stk); //스택에 푸시시킴
 				}

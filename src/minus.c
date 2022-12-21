@@ -29,15 +29,9 @@ LINK minus(LINK a, LINK b) {
         num_copy = a;
         a = b;
         b = num_copy;
-        if (a->d == '+') a->d = '-';
-        else if (a->d == '-') a->d = '+';
-        if (b->d == '-') {
-            return //더하기 호출
-        }
     }
     /////////////////////////////////////////////////////////////
     //부호는 a의 부호를 따라가도록
-    printf("]]]]]%d %c %c %c %c[[[[[\n",big_num, a->next->d, a->d, b->next->d, b->d);
     buho = a->d == '+' ? 1 : 0;  // +면 1, -면 0
 
     /////////////////////////////////////////////////////////////
@@ -82,12 +76,14 @@ LINK minus(LINK a, LINK b) {
     ////////////////////////////////////////////////////////////
     //점 붙이기
     a = last_link(ans);
-    while (point_count--) a = a->prev;
+    for (int _ = point_count; _ > 0; _--) a = a->prev; //[손댄부분] point_count를 기억하기 위해서
     insert(a, '.');
 
     ////////////////////////////////////////////////////////////
     //뒤 0 없애기
-    erase(ans);
+    ans->dot = point_count; //[손댄부분] 소수점 자리 세팅을 위해 추가함
+    erase(ans); //[손댄부분] erase() 내부에서 반복문 한번 돌때마다 ans->dot--
+    point_count = ans->dot; //[손댄부분]
 
     ///////////////////////////////////////////////////////////
     //부호 붙이기
@@ -95,11 +91,13 @@ LINK minus(LINK a, LINK b) {
     ans = char_to_list(buho ? '+' : '-');
     connect(ans, a);
 
-
     //앞 0 없애기
     a = ans->next;
     for (; a->next->d != '.' && a->d == '0'; a = a->next) del_link(ans->next);
 
+    //[손댄부분] 헤드파트 설정 
     ans->cnt = count(ans);
+    ans->dot = ans->cnt - point_count;
+    digit_matching_list(ans);
     return ans;
 }

@@ -18,7 +18,7 @@ LINK evaluate(queue* postfix) {
 	initStack(stk);
 	LINK res = (LINK)malloc(sizeof(LINK));
 	for (LINK p = postfix->front; p != NULL; p = p->next_rear) {
-		if (p->d == '+' && p->cnt > 0 || p->d == '-' && p->cnt > 0) {
+		if (p->d == '+' && p->cnt > 1 || p->d == '-' && p->cnt > 1) {
 			stack_push(p, stk);
 		}
 		else {
@@ -27,10 +27,39 @@ LINK evaluate(queue* postfix) {
 			d2 = stack_pop(stk);
 			d1 = stack_pop(stk);
 			if (p->d == '+') {
-				//res = 더하기(d1, d2);
+				if (d1->d == '+' && d2->d == '+') {
+					//res = 더하기(d1, d2);
+				}
+				else if (d1->d == '+' && d2->d == '-') {
+					d2->d = '+';
+					res = minus(d1, d2);
+				}
+				else if (d1->d == '-' && d2->d == '+') {
+					d1->d == '+';
+					res = minus(d2, d1);
+				}
+				else { // d1->d == '-' && d2->d == '-'
+					//res = 더하기(d1, d2);
+				}
 			}
 			else if (p->d == '-') {
-				res = minus(d1, d2);
+				if (d1->d == '+' && d2->d == '+') {
+					res = minus(d1, d2);
+					//print_list_test(res);
+				}
+				else if (d1->d == '+' && d2->d == '-') {
+					d2->d = '+';
+					//res = 더하기(d1, d2);
+				}
+				else if (d1->d == '-' && d2->d == '+') {
+					d2->d == '-';
+					//res = 더하기(d2, d1);
+				}
+				else { //d1->d == '-' && d2->d == '-'
+					d2->d = '+';
+					d1->d = '+';
+					res = minus(d2, d1);
+				}
 			}
 			else if (p->d == '*') {
 				res = multiply(d1, d2);
@@ -40,9 +69,8 @@ LINK evaluate(queue* postfix) {
 			}
 			stack_push(res, stk);
 		}
-		print_list_test(res);
 	}
 	res = stack_pop(stk);
-
+	free(stk);
 	return res;
 }
