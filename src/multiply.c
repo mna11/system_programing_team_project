@@ -178,7 +178,8 @@ else { //소수부분만
         save = save->next;
     }   
     for (; num_copy != NULL; num_copy = num_copy->next) {
-        insert(save, num_copy->d); 
+        insert(save, num_copy->d);
+        answer = save;
     }
 }
 answer->cnt = answerlen;
