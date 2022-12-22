@@ -33,13 +33,8 @@
         while (compare(a,b) != 1 ){
 	        LINK quo = minus(LINK quo, LINK b);
             i++;
-		    if (quo->d == '-' ) {
-                LINK quo = plus(LINK quo, LINK b);
-                i -= 1;
-                break;
-		}	
-
 }
+	   
         if (sign)
             LINK quo = char_to_list('+'); insert(quo);
         else
