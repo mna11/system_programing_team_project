@@ -35,9 +35,9 @@ DATA isOperator(DATA op) {
 }
 
 queue* toPostFix() {
-	FILE* input = fopen("input", "w"); //입력을 받고 파일로 저장하는 담당
-	FILE* input_reading; //input 파일을 읽어오는 담당
-	FILE* writer_checking; //input 파일을 읽으면서 일부 수정하는 담당
+	FILE* input = fopen("in", "w"); //입력을 받고 파일로 저장하는 담당
+	FILE* input_reading; //in 파일을 읽어오는 담당
+	FILE* writer_checking; //in 파일을 읽으면서 일부 수정하는 담당
 
 	stack* stk = (stack*)malloc(sizeof(stack)); //postfix 변환을 위해 연산자를 잠시 저장하는 공간
 	queue* post = (queue*)malloc(sizeof(queue)); //postfix 순서대로 값을 저장할 공간 
@@ -64,7 +64,7 @@ queue* toPostFix() {
 	}
 	fclose(input);
 
-	input_reading = fopen("input", "r");
+	input_reading = fopen("in", "r");
 	writer_checking = fopen("real_input", "w");
 
 
