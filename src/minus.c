@@ -13,6 +13,15 @@ LINK minus(LINK a, LINK b) {
 
     // a =[절대값 큰 경우]
     big = compare(a, b);
+
+
+    if (big == 2) { // b->a (b>a)
+        num_copy = a;
+        a = b;
+        b = num_copy;
+        sign = 0;
+    }
+    
     if (big == 3) { // 둘의 절대값이 같을 때
         answer = char_to_list('+');
         insert(answer, '.');
@@ -20,13 +29,6 @@ LINK minus(LINK a, LINK b) {
         free_all(a); free_all(b);
         answer->cnt = count(answer);
         return answer;
-    }
-
-    if (big == 2) { // b->a (b>a)
-        num_copy = a;
-        a = b;
-        b = num_copy;
-        sign = 0;
     }
     
     //절대값으로 구현
