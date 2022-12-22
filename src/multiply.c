@@ -1,172 +1,190 @@
 #include "multiply.h"
 
-LINK multiply(LINK num1, LINK num2) {
-    // °è»ê °ª 
-    // ¼±¾ðºÎ
-    LINK ans;
-    LINK num_copy;
-    LINK num1_last = last_link(num1); // num1_last : num1ÀÇ ¸¶Áö¸·   //   num2_last : num2ÀÇ ¸¶Áö¸· 
-    LINK num2_last = last_link(num2);
-    LINK num1_int = copy_link(num1->next);
-    LINK num2_int = copy_link(num2->next);
-    LINK mul1;
-    LINK mul2;
-    LINK input;
-    LINK zero_link;
-    LINK save;
-    char buho = 0;   // 0 -> '-'  1-> '+'
-    
-    // °è»ê °ª ºÎÈ£ °áÁ¤ 
-    //
-    if (num1->d == num2->d)
-        buho = 1;
-    
-    // ¼Ò¼öÁ¡ °è»ê 
-    //
-    unsigned long long point = 0;
-    num_copy = num1_last;
-    for (; num_copy->d != '.'; num_copy = num_copy->prev) point++;//3 
-    num_copy = num2_last;
-    for (; num_copy->d != '.'; num_copy = num_copy->prev) point++;//3+4=7
-    //printf("%d",point);
+bool sign;
+LINK answer;
+LINK num_copy;
+LINK cal1;
+LINK cal2;
+LINK next_num1 = copy_link(num1->next);
+LINK next_num2 = copy_link(num2->next);
+LINK zero_link;
+LINK save;
+LINK input;
 
-    // Á¡ »©±â
-    num_copy = num1_int;
-    for (; num_copy->d != '.'; num_copy = num_copy->next); del_link(num_copy);
-    num_copy = num2_int;
-    for (; num_copy->d != '.'; num_copy = num_copy->next); del_link(num_copy);
-    
-    // °è»ê/////////////////////////////////////////////////////////////////////
-    // num2->d* num1->d .. ÇØ¼­ °è»ê ÈÄ 9º¸´Ù Å©¸é ´ÙÀ½Ä­¿¡ ¿Ã¸²
-    // num2->next->d* num1-> .. ...À§¿¡ °è»ê ÇÑ Ä­¿¡ +
-    // 
-    mul1 = last_link(num1_int);
-    unsigned long long int zero = 0;
-    for (; mul1 != NULL; mul1 = mul1->prev) {
-        mul2 = last_link(num2_int);
-        char now = (mul1->d - '0') * (mul2->d - '0');
-        char up = now / 10;
-        now %= 10;
+// ê³„ì‚° ê°’ ë¶€í˜¸ ê²°ì • 
+sign = (num1->d == num2->d); //'+'=true, '-'=false
 
-        input = char_to_list(now + '0');
+// ì†Œìˆ˜ì  ìœ„ì¹˜
+unsigned long long point1 = 0;
+unsigned long long point2 = 0;
 
+num_copy = last_link(num1); //ë§ˆì§€ë§‰ì—ì„œ íƒìƒ‰ ì‹œìž‘
+while(num_copy->d != '.'){
+    num_copy = num_copy->prev;
+    point1++;
+}
+
+num_copy = last_link(num2);
+while(num_copy->d != '.'){
+    num_copy = num_copy->prev;
+    point2++;
+}
+point = point1 + point2; //ìµœì¢… ì†Œìˆ˜ì  ìœ„ì¹˜ êµ¬í•¨
+
+// ì  ë¹¼ê¸°
+num_copy = next_num1;
+while(num_copy->d != '.')
+    num_copy->next;
+del_link(num_copy);
+
+num_copy = next_num2;
+while(num_copy->d != '.'){
+    num_copy->next;
+del_link(num_copy);
+
+
+// ê³„ì‚° (ì†ê³„ì‚° ì›ë¦¬ ì°¸ì¡°)
+cal1 = last_link(next_num1); 
+unsigned long long int zero = 0; 
+for (; cal1 != NULL; cal1 = cal1->prev) {
+    cal2 = last_link(next_num2);
+    char down = (cal1->d - '0') * (cal2->d - '0'); 
+    char up = down / 10; //ì˜¬ë¦¼ìˆ˜
+    down % 10 = down; //ë‚˜ë¨¸ì§€ ê·¸ëŒ€ë¡œ
+
+    input = char_to_list(down + '0');
+
+    num_copy = input;
+
+    cal2 = cal2->prev;
+    for (; cal2 != NULL; cal2 = cal2->prev) {
+        down = (cal1->d - '0') * (cal2->d - '0') + up;
+        up = down / 10; 
+        down % 10 = down;
+        insert(num_copy, down + '0');
+        num_copy = num_copy->next;
+    }
+    if (up != 0) 
+        insert(num_copy, up + '0'); //ì˜¬ë¦¼ìˆ˜ê°€ ì¡´ìž¬í•  ê²½ìš°
+    num_copy = last_link(input);
+
+    for (; num_copy->prev != NULL; num_copy = num_copy->prev) {
+        if (num_copy->d != '0')
+            break;
+    }
+
+    //í•„ìš”ì—†ëŠ” '0'ê°’ ì§€ìš°ê¸°
+    num_copy = last_link(input);
+    while (1) {
+        if (num_copy->prev == NULL || num_copy->d != '0')
+            break;
+
+        LINK save = num_copy->prev;
+        del_link(num_copy);
+        num_copy = save;
+    }
+
+    if (zero > 0) {
+        zero_link = char_to_list('0');
+        for (unsigned long long i = 1; i < zero; i++) {
+            insert(zero_link, '0');
+        }
+        connect(zero_link, input);
+        input = zero_link; //ìžë¦¬ìˆ˜ ì¶”ê°€
+    }
+
+    //ê³±í•˜ê¸° ê²°ê³¼ë“¤ ë§ì…ˆ
+    if (!zero) //zeroê°€ 0ì¼ë•Œ 
+        answer = copy_link(input);
+
+    else {//zero != 0, ê³±ì˜ ê²°ê³¼ë¥¼ ì „ì˜ ê²°ê³¼ê°’ê³¼ ë”í•œë‹¤.
+        unsigned long long len1 = count(answer);
+        unsigned long long len2 = count(input);
+        if (len2 > len1) {
+            num_copy = answer;
+            answer = input;
+            input = num_copy;
+        }
+        save = answer;
         num_copy = input;
-        mul2 = mul2->prev;
-        for (; mul2 != NULL; mul2 = mul2->prev) {
-            now = (mul1->d - '0') * (mul2->d - '0') + up;
-            up = now / 10;
-            now %= 10;
-            insert(num_copy, now + '0');
-            num_copy = num_copy->next;
-        }
-        if (up != 0) insert(num_copy, up + '0');
-        num_copy = last_link(input);
-
-        for (; num_copy->prev != NULL; num_copy = num_copy->prev) {
-            if (num_copy->d != '0')
-                break;
-        }
-        //ÀÚ¸´¼ö Ãß°¡//////////////////////////////////////////////
-        if (zero > 0) {
-            zero_link = char_to_list('0');
-            for (unsigned long long i = 1; i < zero; i++) {
-                insert(zero_link, '0');
-            }
-            connect(zero_link, input);
-            input = zero_link;
-        }
-        //¾µ¸ð¾ø´Â 0 Áö¿ì±â////////////////////////////////////////
-        num_copy = last_link(input);
-        while (1) {
-            if (num_copy->prev == NULL || num_copy->d != '0')
-                break;
-
-            LINK save = num_copy->prev;
-            del_link(num_copy);
-            num_copy = save;
-        }
-
-        ///////////////////////////////////////////////////////////
-        //µ¡¼À
-        //¼ö´Â ¸®¹ö½º µÇ¾îÀÖÀ½
-        //1321 + 432 = 5641
-
-        if (!zero) ans = copy_link(input);
-
-        else {
-            unsigned long long len1 = count(ans);
-            unsigned long long len2 = count(input);
-            if (len2 > len1) {
-                num_copy = ans;
-                ans = input;
-                input = num_copy;
-            }
-            save = ans;
-            num_copy = input;
-            now = 0;
-            up = 0;
-            for (; num_copy != NULL; num_copy = num_copy->next) {
-                now = num_copy->d - '0' + save->d - '0' + up;
-                up = now / 10;
-                now = now % 10;
-                save->d = now + '0';
-                save = save->next;
-            }
-            for (; up && save != NULL; save = save->next) {
-                now = save->d - '0' + up;
-                up = now / 10;
-                now = now % 10;
-                save->d = now + '0';
-            }
-            if (up) {
-                save = last_link(ans);
-                insert(save, '1');
-            }
-        }
-        free_all(input);
-        zero++;
-    }
-
-    // ºÎÈ£ Ãß°¡ÇÏ°í µÚÁý°í ¼Ò¼öÁ¡ °è»ê ÇÑ °ª¸¸Å­ ¼Ò¼öÁ¡ µÚ¿¡¼­ºÎÅÍ Ä«¿îÆ®
-    //
-    unsigned long long anslen = count(ans);
-    if (anslen > point) {
-        num_copy = ans;
-        save = ans;
-        if (buho) ans = char_to_list('+');
-        else ans = char_to_list('-');
-
+        down = 0;
+        up = 0;
         for (; num_copy != NULL; num_copy = num_copy->next) {
-            insert(ans, num_copy->d);
-        }
-        free_all(save);
-
-        num_copy = last_link(ans);
-        while (point--) num_copy = num_copy->prev;
-        insert(num_copy, '.');
-    }
-    else {
-        num_copy = ans;
-        if (buho) ans = char_to_list('+');
-        else ans = char_to_list('-');
-        save = ans;
-        insert(save, '0'); save = save->next; insert(save, '.'); save = save->next;
-        point -= anslen;
-        while (point--) {
-            insert(save, '0');
+            down = num_copy->d - '0' + save->d - '0' + up;
+            up = down / 10;
+            down = down % 10;
+            save->d = down + '0';
             save = save->next;
         }
-        for (; num_copy != NULL; num_copy = num_copy->next) {
-            insert(save, num_copy->d);
+        for (; up && save != NULL; save = save->next) {
+            down = save->d - '0' + up;
+            up = down / 10;
+            down = down % 10;
+            save->d = down + '0';
+        }
+        if (up) {
+            save = last_link(answer);
+            insert(save, '1');
         }
     }
-    ans->cnt = anslen;
+    free_all(input);
+    zero++;
+}
 
-    erase(ans);
-    free_all(num1);
-    free_all(num2);
-    free_all(num1_int);
-    free_all(num2_int);
+unsigned long long answerlen = count(answer); //ë¶€í˜¸ ë° '.'ì¶”ê°€ íŒŒíŠ¸
+if (answerlen > point) { //ë„ì¶œê°’ì´ point ë³´ë‹¤ í´ ë•Œ(ì •ìˆ˜ë¶€ ì¡´ìž¬)
+    num_copy = answer;
+    save = answer;
+
+    if (sign) //ë¶€í˜¸ê°€ ê°™ì„ ê²½ìš° '+' ë„£ê¸°
+        answer = char_to_list('+');
+    else
+        answer = char_to_list('-');
+
+    for (; num_copy != NULL; num_copy = num_copy->next) { //'.'ì œì™¸í•œ ì •ë‹µ ìž‘ì„±
+        insert(answer, num_copy->d);
+    }
+    free_all(save);
+
+    num_copy = last_link(answer); //ë‹¤ì‹œ ë’¤ì§‘ê³  '.'ì¶”ê°€
+    while (point--) 
+        num_copy = num_copy->prev;
+    insert(num_copy, '.');
+}
+else { //ì†Œìˆ˜ë¶€ë¶„ë§Œ 
+    num_copy = answer;
+    if (sign)
+        answer = char_to_list('+');
+    else
+        answer = char_to_list('-');
     
-    return ans;
+    save = answer;
+    insert(save, '0');
+    
+    save = save->next; 
+    insert(save, '.');
+    //+-(0.xx) ì¶”ê°€
+    
+    save = save->next;
+    
+    point -= answerlen;
+
+    while (point--) { //+-0.00...
+        insert(save, '0');
+        save = save->next;
+    }   
+    for (; num_copy != NULL; num_copy = num_copy->next) {
+        insert(save, num_copy->d); 
+    }
+}
+answer->cnt = answerlen;
+
+erase(answer);
+
+free_all(num1);
+free_all(num2);
+free_all(next_num1);
+free_all(next_num2);
+
+return answer;
 }
