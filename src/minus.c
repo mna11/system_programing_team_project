@@ -1,68 +1,56 @@
 #include "minus.h"
 
 LINK minus(LINK a, LINK b) {
-
-    /////////////////////////////////////////////////////////////
-    //¼±¾ðºÎ
-    LINK ans;
+    LINK answer;
     LINK num_copy;
     LINK num1;
     LINK num2;
-    char buho = 1; //ºÎÈ£ (+,- : 1,0)
-    char big_num; //ºñ±³°ª (1,2,3)
-    unsigned long long int point_count = 0; //Á¡ÀÇ À§Ä¡(0~)
-    char now = 0; // °è»êÆÄÆ®¿¡¼­ÀÇ ÇöÀç°ª
-    char down = 0; // °è»êÆÄÆ®¿¡¼­ÀÇ ³»¸²°ª
+    char buho = 1; //ë¶€í˜¸ (+,- : 1,0)
+    char big; 
+    unsigned long long int point_count = 0; //'.'ìœ„ì¹˜ ê³„ì‚°
+    char now = 0; //  í˜„ìž¬ê°’
+    char down = 0; //  ë‚´ë¦¼ê°’
 
-    /////////////////////////////////////////////////////////////
-    //Àý´ë°ªÀÌ Å« ¼ö°¡ a·Î °¡µµ·Ï ¹× È¤½Ã ´äÀÌ 0ÀÌ´Ï?
-    big_num = compare(a, b);
-    if (big_num == 3) { // µÑÀÇ Àý´ë°ªÀÌ °°À» ¶§
-        ans = char_to_list('+');
-        insert(ans, '.');
-        insert(ans, '0');
+    // a =[ì ˆëŒ€ê°’ í° ê²½ìš°]
+    big = compare(a, b);
+    if (big == 3) { // ë‘˜ì˜ ì ˆëŒ€ê°’ì´ ê°™ì„ ë•Œ
+        answer = char_to_list('+');
+        insert(answer, '.');
+        insert(answer, '0');
         free_all(a); free_all(b);
-        ans->cnt = count(ans);
-        return ans;
+        answer->cnt = count(answer);
+        return answer;
     }
 
-    if (big_num == 2) { // b°¡ ´õ Å©¸é b°¡ a·Î ÀÌµ¿
+    if (big == 2) { // b->a (b>a)
         num_copy = a;
         a = b;
         b = num_copy;
-
         buho = 0;
     }
-    /////////////////////////////////////////////////////////////
-    //ºÎÈ£´Â aÀÇ ºÎÈ£¸¦ µû¶ó°¡µµ·Ï
-    //buho = a->d == '+' ? 1 : 0;  // +¸é 1, -¸é 0
-
-    /////////////////////////////////////////////////////////////
-    //¼ýÀÚ ºÎÈ£ ¾ø¾Ö°í Àý´ë°ªÀ¸·Î
+    
+    //ì ˆëŒ€ê°’ìœ¼ë¡œ êµ¬í˜„
     num1 = a->next; num1->prev = NULL; free(a);
     num2 = b->next; num2->prev = NULL; free(b);
 
-    /////////////////////////////////////////////////////////////
-    //¼Ò¼öÁ¡ À§ ¸ÂÃß±â
+    //ìžë¦¿ìˆ˜ ì •ìˆ˜ë¶€ ë§žì¶”ê¸°
     num2 = small_fill(num1, num2);
 
-    ////////////////////////////////////////////////////////////
-    //¼Ò¼öÁ¡ ¾Æ·¡ ¸ÂÃß±â
+
+    //ìžë¦¿ìˆ˜ ì†Œìˆ˜ë¶€ë¶„ ë§žì¶”ê¸°
     downzero(num1, num2);
 
-    ////////////////////////////////////////////////////////////
-    //¼Ò¼öÁ¡ ÀÚ¸´¼ö ¼¼±â ¹× Á¦°Å
+    //ì†Œìˆ˜ì  ìžë¦¿ìˆ˜ ì„¸ê¸° ë° ì œê±°
     a = last_link(num1);
     b = num2;
     for (; a->d != '.'; a = a->prev) point_count++; del_link(a);
     for (; b->d != '.'; b = b->next); del_link(b);
 
-    ///////////////////////////////////////////////////////////
-    //°è»ê
+    //ê³„ì‚° ì½”ë“œ
     a = last_link(num1);
     b = last_link(num2);
 
-    while (a != NULL) {
+    while (a != NULL) { 
         char number1 = a->d - '0';
         char number2 = b->d - '0';
         char check = 0;
@@ -74,33 +62,32 @@ LINK minus(LINK a, LINK b) {
         b = b->prev;
     }
 
-    ans = copy_link(num1);
+    answer = copy_link(num1);
     free_all(num1); free_all(num2);
-    ////////////////////////////////////////////////////////////
-    //Á¡ ºÙÀÌ±â
-    a = last_link(ans);
-    for (int _ = point_count; _ > 0; _--) a = a->prev; //[¼Õ´íºÎºÐ] point_count¸¦ ±â¾ïÇÏ±â À§ÇØ¼­
+
+    //ì  ë¶™ì´ê¸°
+    a = last_link(answer);
+    for (int _ = point_count; _ > 0; _--) a = a->prev; // point_countë¥¼ ê¸°ì–µí•˜ê¸° ìœ„í•´ì„œ
     insert(a, '.');
 
-    ////////////////////////////////////////////////////////////
-    //µÚ 0 ¾ø¾Ö±â
-    ans->dot = point_count; //[¼Õ´íºÎºÐ] ¼Ò¼öÁ¡ ÀÚ¸® ¼¼ÆÃÀ» À§ÇØ Ãß°¡ÇÔ
-    erase(ans); //[¼Õ´íºÎºÐ] erase() ³»ºÎ¿¡¼­ ¹Ýº¹¹® ÇÑ¹ø µ¹¶§¸¶´Ù ans->dot--
-    point_count = ans->dot; //[¼Õ´íºÎºÐ]
 
-    ///////////////////////////////////////////////////////////
-    //ºÎÈ£ ºÙÀÌ±â
-    a = ans;
-    ans = char_to_list(buho ? '+' : '-');
-    connect(ans, a);
+    //ë’¤ 0 ì—†ì• ê¸°
+    answer->dot = point_count; //ì†Œìˆ˜ì  ìžë¦¬ ì„¸íŒ…ì„ ìœ„í•´ ì¶”ê°€í•¨
+    erase(answer); //erase() ë‚´ë¶€ì—ì„œ ë°˜ë³µë¬¸ í•œë²ˆ ëŒë•Œë§ˆë‹¤ ans->dot--
+    point_count = answer->dot; 
 
-    //¾Õ 0 ¾ø¾Ö±â
-    a = ans->next;
-    for (; a->next->d != '.' && a->d == '0'; a = a->next) del_link(ans->next);
+    //ë¶€í˜¸ ë¶™ì´ê¸°
+    a = answer;
+    answer = char_to_list(buho ? '+' : '-');
+    connect(answer, a);
 
-    //[¼Õ´íºÎºÐ] ÇìµåÆÄÆ® ¼³Á¤ 
-    ans->cnt = count(ans);
-    ans->dot = ans->cnt - point_count;
-    digit_matching_list(ans);
-    return ans;
+    //ì•ž 0 ì—†ì• ê¸°
+    a = answer->next;
+    for (; a->next->d != '.' && a->d == '0'; a = a->next) del_link(answer->next);
+
+    // í—¤ë“œíŒŒíŠ¸ ì„¤ì • 
+    answer->cnt = count(answer);
+    answer->dot = answer->cnt - point_count;
+    digit_matching_list(answer);
+    return answer;
 }
