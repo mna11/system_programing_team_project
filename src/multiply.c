@@ -44,7 +44,7 @@ del_link(num_copy);
 
 
 // 계산 (손계산 원리 참조)
-cal1 = last_link(next_num1); //다시 역으로 만들어 처음처럼 만들어준다
+cal1 = last_link(next_num1); 
 unsigned long long int zero = 0; 
 for (; cal1 != NULL; cal1 = cal1->prev) {
     cal2 = last_link(next_num2);
