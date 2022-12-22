@@ -5,7 +5,7 @@ LINK minus(LINK a, LINK b) {
     LINK num_copy;
     LINK num1;
     LINK num2;
-    char buho = 1; //부호 (+,- : 1,0)
+    char sign = 1; //부호 (+,- : 1,0)
     char big; 
     unsigned long long int point_count = 0; //'.'위치 계산
     char now = 0; //  현재값
@@ -26,7 +26,7 @@ LINK minus(LINK a, LINK b) {
         num_copy = a;
         a = b;
         b = num_copy;
-        buho = 0;
+        sign = 0;
     }
     
     //절대값으로 구현
@@ -78,7 +78,7 @@ LINK minus(LINK a, LINK b) {
 
     //부호 붙이기
     a = answer;
-    answer = char_to_list(buho ? '+' : '-');
+    answer = char_to_list(sign ? '+' : '-');
     connect(answer, a);
 
     //앞 0 없애기
