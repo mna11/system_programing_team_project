@@ -64,7 +64,8 @@ for (; cal1 != NULL; cal1 = cal1->prev) {
         insert(num_copy, down + '0');
         num_copy = num_copy->next;
     }
-    if (up != 0) insert(num_copy, up + '0'); //올림수가 존재할 경우
+    if (up != 0) 
+        insert(num_copy, up + '0'); //올림수가 존재할 경우
     num_copy = last_link(input);
 
     for (; num_copy->prev != NULL; num_copy = num_copy->prev) {
@@ -93,10 +94,10 @@ for (; cal1 != NULL; cal1 = cal1->prev) {
     }
 
     //곱하기 결과들 덧셈
-    if (!zero) 
+    if (!zero) //zero가 0일때 
         answer = copy_link(input);
 
-    else {
+    else {//zero != 0, 곱의 결과를 전의 결과값과 더한다.
         unsigned long long len1 = count(answer);
         unsigned long long len2 = count(input);
         if (len2 > len1) {
@@ -140,13 +141,14 @@ if (answerlen > point) { //도출값이 point 보다 클 때(정수부 존재)
     else
         answer = char_to_list('-');
 
-    for (; num_copy != NULL; num_copy = num_copy->next) {
+    for (; num_copy != NULL; num_copy = num_copy->next) { //'.'제외한 정답 작성
         insert(answer, num_copy->d);
     }
     free_all(save);
 
     num_copy = last_link(answer); //다시 뒤집고 '.'추가
-    while (point--) num_copy = num_copy->prev;
+    while (point--) 
+        num_copy = num_copy->prev;
     insert(num_copy, '.');
 }
 else { //소수부분만 
@@ -155,19 +157,24 @@ else { //소수부분만
         answer = char_to_list('+');
     else
         answer = char_to_list('-');
-
+    
     save = answer;
     insert(save, '0');
-    save = save->next; insert(save, '.');
+    
+    save = save->next; 
+    insert(save, '.');
+    //+-(0.xx) 추가
+    
     save = save->next;
+    
     point -= answerlen;
 
-    while (point--) {
+    while (point--) { //+-0.00...
         insert(save, '0');
         save = save->next;
-    }
+    }   
     for (; num_copy != NULL; num_copy = num_copy->next) {
-        insert(save, num_copy->d);
+        insert(save, num_copy->d); 
     }
 }
 answer->cnt = answerlen;
