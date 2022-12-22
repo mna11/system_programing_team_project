@@ -1,6 +1,6 @@
 #include "multiply.h"
 
-int sign;
+int sign = 0; //default - 
 LINK answer;
 LINK num_copy;
 LINK cal1;
@@ -11,11 +11,10 @@ LINK zero_link;
 LINK save;
 LINK input;
 
-// 계산 값 부호 결정 
+// 부호 결정 
 if(num1->d == num2->d)
-    sign = 1;
-else 
-    sign = 2; //1 =true, 2 =false
+    sign = 1; //cheange +
+
 
 // 소수점 위치
 unsigned long long point = 0;
@@ -54,7 +53,7 @@ for (; cal1 != NULL; cal1 = cal1->prev) {
     cal2 = last_link(next_num2);
     char down = (cal1->d - '0') * (cal2->d - '0'); 
     char up = down / 10; //올림수
-    down % 10 = down; //나머지 그대로
+    down = down % 10; //나머지 그대로
 
     input = char_to_list(down + '0');
 
@@ -64,7 +63,7 @@ for (; cal1 != NULL; cal1 = cal1->prev) {
     for (; cal2 != NULL; cal2 = cal2->prev) {
         down = (cal1->d - '0') * (cal2->d - '0') + up;
         up = down / 10; 
-        down % 10 = down;
+        down = down % 10;
         insert(num_copy, down + '0');
         num_copy = num_copy->next;
     }
@@ -76,6 +75,16 @@ for (; cal1 != NULL; cal1 = cal1->prev) {
         if (num_copy->d != '0')
             break;
     }
+    
+       if (zero > 0) {
+        zero_link = char_to_list('0');
+        for (unsigned long long i = 1; i < zero; i++) {
+            insert(zero_link, '0');
+        }
+        connect(zero_link, input);
+        input = zero_link; //자리수 추가
+    }
+
 
     //필요없는 '0'값 지우기
     num_copy = last_link(input);
@@ -88,15 +97,7 @@ for (; cal1 != NULL; cal1 = cal1->prev) {
         num_copy = save;
     }
 
-    if (zero > 0) {
-        zero_link = char_to_list('0');
-        for (unsigned long long i = 1; i < zero; i++) {
-            insert(zero_link, '0');
-        }
-        connect(zero_link, input);
-        input = zero_link; //자리수 추가
-    }
-
+ 
     //곱하기 결과들 덧셈
     if (!zero) //zero가 0일때 
         answer = copy_link(input);
@@ -140,7 +141,7 @@ if (answerlen > point) { //도출값이 point 보다 클 때(정수부 존재)
     num_copy = answer;
     save = answer;
 
-    if (sign == 1) //부호가 같을 경우 '+' 넣기
+    if (sign) //부호가 같을 경우 '+' 넣기
         answer = char_to_list('+');
     else
         answer = char_to_list('-');
@@ -157,7 +158,7 @@ if (answerlen > point) { //도출값이 point 보다 클 때(정수부 존재)
 }
 else { //소수부분만 
     num_copy = answer;
-    if (sign == 1)
+    if (sign)
         answer = char_to_list('+');
     else
         answer = char_to_list('-');
