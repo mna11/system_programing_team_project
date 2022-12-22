@@ -1,6 +1,6 @@
 #include "multiply.h"
 
-bool sign;
+int sign;
 LINK answer;
 LINK num_copy;
 LINK cal1;
@@ -12,9 +12,13 @@ LINK save;
 LINK input;
 
 // 계산 값 부호 결정 
-sign = (num1->d == num2->d); //'+'=true, '-'=false
+if(num1->d == num2->d)
+    sign = 1;
+else 
+    sign = 2; //1 =true, 2 =false
 
 // 소수점 위치
+unsigned long long point = 0;
 unsigned long long point1 = 0;
 unsigned long long point2 = 0;
 
@@ -136,7 +140,7 @@ if (answerlen > point) { //도출값이 point 보다 클 때(정수부 존재)
     num_copy = answer;
     save = answer;
 
-    if (sign) //부호가 같을 경우 '+' 넣기
+    if (sign == 1) //부호가 같을 경우 '+' 넣기
         answer = char_to_list('+');
     else
         answer = char_to_list('-');
@@ -153,7 +157,7 @@ if (answerlen > point) { //도출값이 point 보다 클 때(정수부 존재)
 }
 else { //소수부분만 
     num_copy = answer;
-    if (sign)
+    if (sign == 1)
         answer = char_to_list('+');
     else
         answer = char_to_list('-');
@@ -174,7 +178,8 @@ else { //소수부분만
         save = save->next;
     }   
     for (; num_copy != NULL; num_copy = num_copy->next) {
-        insert(save, num_copy->d); 
+        insert(save, num_copy->d);
+        answer = save;
     }
 }
 answer->cnt = answerlen;
